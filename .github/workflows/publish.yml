@@ -83,7 +83,7 @@ jobs:
 
     - name: upload signed apk
       uses: actions/upload-artifact@v4
-       id: upload
+      id: upload
       with:
         name: ${{ env.date_today }}-${{ env.repository_name }}-signed
         path: ${{steps.sign_app.outputs.signedReleaseFile}}   
