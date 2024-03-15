@@ -60,7 +60,7 @@ jobs:
         
       - name: current dir
         run: | 
-            ls -la       
+            ls -la build/outputs/apk/      
         
       - name: Upload artifact
         uses: actions/upload-artifact@v4            
