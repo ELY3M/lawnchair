@@ -1,0 +1,126 @@
+name: Build and Publish APK
+
+on:
+  push:
+    branches:
+      - '*'
+    paths-ignore:
+      - '.idea/**'
+      - '.gitattributes'
+      - '.github/**.json'
+      - '.gitignore'
+      - '.gitmodules'
+      - '**.md'
+      - 'LICENSE'
+      - 'NOTICE'
+  pull_request:
+    branches:
+      - '*'  
+    paths-ignore:
+      - '.idea/**'
+      - '.gitattributes'
+      - '.github/**.json'
+      - '.gitignore'
+      - '.gitmodules'
+      - '**.md'
+      - 'LICENSE'
+      - 'NOTICE'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true  
+        
+    - name: Set current date as env variable
+      run: echo "date_today=$(date +'%m-%d-%Y')" >> $GITHUB_ENV
+
+    - name: Set repository name as env variable
+      run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+
+    - name: Set Up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu' # See 'Supported distributions' for available options
+        java-version: '21'
+        cache: 'gradle'
+
+    - name: Build unsigned apk release
+      run: ./gradlew assembleLawnWithQuickstepMarketRelease
+
+    - name: Upload unsigned APK Release
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.date_today }}-${{ env.repository_name }}
+        path: app/build/outputs/apk/release/	
+        overwrite: true
+        retention-days: 1          
+      
+    - name: Setup build tool version variable
+      shell: bash
+      run: |
+       BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
+       echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
+       echo Last build tool version is: $BUILD_TOOL_VERSION
+
+    - name: Sign APK
+      uses: r0adkll/sign-android-release@v1
+      id: sign_app
+      with:
+        releaseDirectory: app/build/outputs/apk/release/
+        signingKeyBase64: ${{ secrets.KEY }}
+        alias: ${{ secrets.ALIAS }}
+        keyStorePassword: ${{ secrets.PASSWORD }}
+        keyPassword: ${{ secrets.PASSWORD }}
+      env:
+        BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
+
+    - name: upload signed apk
+      uses: actions/upload-artifact@v4
+       id: upload
+      with:
+        name: ${{ env.date_today }}-${{ env.repository_name }}-signed
+        path: ${{steps.sign_app.outputs.signedReleaseFile}}   
+        overwrite: true
+        retention-days: 1         
+
+    - name: Output signedReleaseFile
+      run:  echo 'signedReleaseFile is ${{steps.sign_app.outputs.signedReleaseFile}}'
+      
+    - name: Output artifact ID
+      run:  echo 'Artifact ID is ${{ steps.upload.outputs.artifact-id }}'        
+        
+    - name: Output Artifact URL
+      run:  echo 'Artifact URL is ${{ steps.upload.outputs.artifact-url }}'
+      
+  publish-github-release:
+    runs-on: ubuntu-latest
+    needs: build-release-apk
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Release APK
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.run_number }}
+          prerelease: false
+          draft: false
+          body: ${{ github.event.head_commit.message }}
+          files: artifacts/release-apk/${{ env.date_today }}-${{ env.repository_name }}-signed.apk
+          name: ${{ github.event.inputs.releaseName }}          
+
+
+
+
