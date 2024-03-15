@@ -28,6 +28,8 @@ on:
   workflow_dispatch:
   workflow_call:
 
+permissions: write-all
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -87,18 +89,13 @@ jobs:
       - name: Output Artifact URL
         run:  echo 'Artifact URL is ${{ steps.upload.outputs.artifact-url }}'
         
-  publish-github-release:
-    runs-on: ubuntu-latest
-    needs: build-apk
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
       - name: Download artifact
+      - uses: actions/checkout@v4
         uses: actions/download-artifact@v4
         with:
-          name: Release APK
-          path: build/outputs/apk/lawnWithQuickstepMarket/release  
+          name: release-apk
+          path: build/outputs/apk/lawnWithQuickstepMarket/release/
+          
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -106,7 +103,7 @@ jobs:
           prerelease: false
           draft: false
           body: ${{ github.event.head_commit.message }}
-          files: build/outputs/apk/lawnWithQuickstepMarket/release/*.apk
+          files: ${{ steps.sign_app.outputs.signedReleaseFile }}
           name: ${{ github.run_number }} 
 
           
