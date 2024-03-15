@@ -80,7 +80,7 @@ jobs:
         
   publish-github-release:
     runs-on: ubuntu-latest
-    needs: build-release-apk
+    needs: build-apk
     permissions:
       contents: write
     steps:
