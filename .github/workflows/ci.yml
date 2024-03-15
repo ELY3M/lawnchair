@@ -44,16 +44,6 @@ jobs:
         with:
           cache-encryption-key: Da25KUVSE5jbGds2zXmfXw==
           gradle-home-cache-cleanup: true
-      - name: Write sign info
-        if: github.repository_owner == 'ELY3M'
-        run: |
-          if [ ! -z "${{ secrets.KEY }}" ]; then
-            echo storePassword='${{ secrets.PASSWORD }}' >> keystore.properties
-            echo keyAlias='${{ secrets.ALIAS }}' >> keystore.properties
-            echo keyPassword='${{ secrets.PASSWORD }}' >> keystore.properties
-            echo storeFile='${{ github.workspace }}/key.jks' >> keystore.properties
-            echo ${{ secrets.KEY }} | base64 --decode > ${{ github.workspace }}/key.jks
-          fi
           
       - name: Build APK
         run: ./gradlew assembleLawnWithQuickstepMarketRelease
@@ -61,6 +51,19 @@ jobs:
       - name: current dir
         run: | 
             ls -la build/outputs/apk/lawnWithQuickstepMarket/release    
+
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: build/outputs/apk/lawnWithQuickstepMarket/release/
+          signingKeyBase64: ${{ secrets.KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.PASSWORD }}
+          keyPassword: ${{ secrets.PASSWORD }}
+
+      - name: Output Signed APK
+        run:  echo 'Signed APK is ${{ steps.sign_app.outputs.signedReleaseFile }}' 
         
       - name: Upload artifact
         uses: actions/upload-artifact@v4            
@@ -75,3 +78,31 @@ jobs:
       - name: Output Artifact URL
         run:  echo 'Artifact URL is ${{ steps.upload.outputs.artifact-url }}'
         
+  publish-github-release:
+    runs-on: ubuntu-latest
+    needs: build-release-apk
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Release APK
+          path: build/outputs/apk/lawnWithQuickstepMarket/release  
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.run_number }}
+          prerelease: false
+          draft: false
+          body: ${{ github.event.head_commit.message }}
+          files: build/outputs/apk/lawnWithQuickstepMarket/release/*.apk
+          name: ${{ github.run_number }} 
+
+          
+        
+        
+        
+        
+       

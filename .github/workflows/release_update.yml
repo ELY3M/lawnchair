@@ -39,13 +39,13 @@ jobs:
 
       - name: current dir
         run: | 
-            pwd
+            ls -la build/outputs/apk/lawnWithQuickstepMarket/release
         
       - name: Sign APK
         uses: r0adkll/sign-android-release@v1
         id: sign_app
         with:
-          releaseDirectory: /home/runner/work/lawnchair/lawnchair/build/outputs/apk/release/
+          releaseDirectory: build/outputs/apk/lawnWithQuickstepMarket/release/
           signingKeyBase64: ${{ secrets.KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.PASSWORD }}
