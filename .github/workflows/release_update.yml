@@ -71,11 +71,10 @@ jobs:
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.inputs.tagName }}
+          prerelease: ${{ github.events.inputs.prerelease }}
           draft: false
-          prerelease: false    
-          tag_name: ${{ github.run_number }}
           body: ${{ github.event.head_commit.message }}
           files: artifacts/release-apk/${{ github.event.inputs.artifactName }}
-          name: ${{ github.event.inputs.releaseName }}
-
+          name: ${{ github.event.inputs.releaseName }}          
 
