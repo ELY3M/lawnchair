@@ -88,13 +88,6 @@ jobs:
           
       - name: Output Artifact URL
         run:  echo 'Artifact URL is ${{ steps.upload.outputs.artifact-url }}'
-        
-      - name: Download artifact
-      - uses: actions/checkout@v4
-        uses: actions/download-artifact@v4
-        with:
-          name: release-apk
-          path: build/outputs/apk/lawnWithQuickstepMarket/release/
           
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
