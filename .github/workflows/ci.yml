@@ -61,6 +61,31 @@ jobs:
           name: release-apk
           path: build/outputs/apk/**/*.apk
 
+  publish-github-release:
+    runs-on: ubuntu-latest
+    needs: build-release-apk
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-apk
+          path: artifacts/release-apk
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false    
+          tag_name: ${{ github.run_number }}
+          body: ${{ github.event.head_commit.message }}
+          files: artifacts/release-apk/release-apk
+          name: release-apk
+          
+          
+          
+          
 
 
 
