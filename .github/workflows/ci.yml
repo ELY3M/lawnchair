@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - '*-dev'
+      - '*'
     paths-ignore:
       - '.idea/**'
       - '.gitattributes'
@@ -14,6 +14,8 @@ on:
       - 'LICENSE'
       - 'NOTICE'
   pull_request:
+    branches:
+      - '*'  
     paths-ignore:
       - '.idea/**'
       - '.gitattributes'
@@ -27,7 +29,7 @@ on:
   workflow_call:
 
 jobs:
-  build-debug-apk:
+  build-release-apk:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -40,81 +42,25 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v3
         with:
-          cache-encryption-key: Da25KUVSE5jbGds2zXmfXw==
           gradle-home-cache-cleanup: true
       - name: Write sign info
-        if: github.repository_owner == 'LawnchairLauncher'
+        if: github.repository_owner == 'ELY3M'
         run: |
-          if [ ! -z "${{ secrets.KEYSTORE }}" ]; then
-            echo storePassword='${{ secrets.KEYSTORE_PASSWORD }}' >> keystore.properties
-            echo keyAlias='${{ secrets.KEY_ALIAS }}' >> keystore.properties
-            echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> keystore.properties
+          if [ ! -z "${{ secrets.KEY }}" ]; then
+            echo storePassword='${{ secrets.PASSWORD }}' >> keystore.properties
+            echo keyAlias='${{ secrets.ALIAS }}' >> keystore.properties
+            echo keyPassword='${{ secrets.PASSWORD }}' >> keystore.properties
             echo storeFile='${{ github.workspace }}/key.jks' >> keystore.properties
-            echo ${{ secrets.KEYSTORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+            echo ${{ secrets.KEY }} | base64 --decode > ${{ github.workspace }}/key.jks
           fi
-      - name: Build debug APK
-        run: ./gradlew assembleLawnWithQuickstepGithubDebug assembleLawnWithQuickstepMarketDebug
+      - name: Build Release APK
+        run: ./gradlew assembleLawnWithQuickstepMarketReleases
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Debug APK
+          name: release-apk
           path: build/outputs/apk/**/*.apk
 
-  check-style:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: 21
-      - uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-home-cache-cleanup: true
-      - run: ./gradlew spotlessCheck
 
-  send-notifications:
-    runs-on: ubuntu-latest
-    if: github.repository_owner == 'LawnchairLauncher'
-    needs: build-debug-apk
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-      - name: Install Python packages
-        run: |
-          python -m pip install --upgrade pip
-          pip install gitpython requests
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Debug APK
-          path: artifacts/debug-apk
-      - name: Send notifications
-        run: python ci.py
-        env:
-          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_CI_BOT_TOKEN }}
-          TELEGRAM_CI_CHANNEL_ID: ${{ secrets.TELEGRAM_CI_CHANNEL_ID }}
-          TELEGRAM_TEAM_GROUP_ID: ${{ secrets.NOTIFY_CHANNEL_ID }}
-          ARTIFACT_DIRECTORY: artifacts/debug-apk
-          GITHUB_REF: ${{ github.ref }}
-          ACTION: internal_notifications
 
-  crowdin-auto-merge:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'lawnchair-bot' && github.event.pull_request.title == 'New Crowdin translations by Github Action'
-    needs: build-debug-apk
-    steps:
-      - env:
-          GH_TOKEN: ${{ secrets.LAWNCHAIR_BOT_TOKEN }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-        run: |
-          gh pr comment $PR_URL --body "No issues found, auto-merging the Crowdin pull request."
-          gh pr merge $PR_URL --auto --squash --delete-branch
+
