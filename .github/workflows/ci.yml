@@ -60,7 +60,7 @@ jobs:
         
       - name: current dir
         run: | 
-            ls -la build/outputs/apk/      
+            ls -la build/outputs/apk/lawnWithQuickstepMarket      
         
       - name: Upload artifact
         uses: actions/upload-artifact@v4            
