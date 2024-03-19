@@ -85,6 +85,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
 
     private static final float MAX_SCROLL_PROGRESS = 1.0f;
 
+    private boolean infiniteScroll = true;   
     private boolean mFreeScroll = false;
 
     private int mFlingThresholdVelocity;
@@ -1415,18 +1416,34 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
 						
                         finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + getPanelCount();
                         runOnPageScrollsInitialized(() -> snapToPageWithVelocity(finalPage, velocity));
+						
+						
+						
+						Log.d("elys-log", "mCurrentPage: "+mCurrentPage);
+						Log.d("elys-log", "getPanelCount(): "+getPanelCount());	
+						Log.d("elys-log", "finalPage: "+finalPage);						
+						
+						
+					} else if (mCurrentPage == getChildCount() - 1 && infiniteScroll) {
+                        finalPage = returnToOriginalPage ? mCurrentPage : 0;
+                        snapToPageWithVelocity(finalPage, velocity);
+						
+						
+                    } else if (mCurrentPage == 0 && infiniteScroll) {
+                        finalPage = returnToOriginalPage ? mCurrentPage : getChildCount() - 1;
+                        snapToPageWithVelocity(finalPage, velocity);						
+						
+						
+						
+						
                     } else {
 						Log.d("elys-log", "runOnPageScrollsInitialized1");
-						Log.d("elys-log", "mCurrentPage: "+mCurrentPage);
-						Log.d("elys-log", "getPanelCount(): "+getPanelCount());
-						
                         //test
-                        finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + getPanelCount();
-						Log.d("elys-log", "finalPage: "+finalPage);
-                        runOnPageScrollsInitialized(() -> snapToPageWithVelocity(finalPage, velocity));						
+                        //finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + getPanelCount();
+                        //runOnPageScrollsInitialized(() -> snapToPageWithVelocity(finalPage, velocity));						
 						
 						
-						///runOnPageScrollsInitialized(this::snapToDestination);
+						runOnPageScrollsInitialized(this::snapToDestination);
 						
 						
 						
