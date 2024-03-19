@@ -3,9 +3,9 @@ import com.android.build.gradle.api.AndroidBasePlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id 'com.android.application' version "8.3.0"
-    id 'com.android.library' version "8.3.0" apply false
-    id 'com.android.test' version '8.3.0' apply false
+    id 'com.android.application' version "8.3.1"
+    id 'com.android.library' version "8.3.1" apply false
+    id 'com.android.test' version '8.3.1' apply false
     id 'androidx.baselineprofile' version '1.2.3'
     id 'org.jetbrains.kotlin.android' version "1.9.22"
     id 'org.jetbrains.kotlin.plugin.parcelize' version "1.9.22"
@@ -388,8 +388,9 @@ dependencies {
     implementation "com.patrykmichalik.opto:core:$optoVersion"
     implementation "com.patrykmichalik.opto:compose:$optoVersion"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
-    implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0"
+    def retrofitVersion = "2.10.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-kotlinx-serialization:$retrofitVersion"
 
     def roomVersion = '2.6.1'
     implementation "androidx.room:room-runtime:$roomVersion"
