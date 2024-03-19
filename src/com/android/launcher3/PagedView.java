@@ -1390,7 +1390,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                 }
 
                 if (!mFreeScroll) {
-							    Log.d("elys-log", "!mFreeScroll");
+							    		    Log.d("elys-log", "ACTION_UP");
                     // In the case that the page is moved far to one direction and then is flung
                     // in the opposite direction, we use a threshold to determine whether we should
                     // just return to the starting page, or if we should skip one further.
@@ -1423,6 +1423,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                     }
                 } else {
                     if (!mScroller.isFinished()) {
+								    Log.d("elys-log", "!mScroller.isFinished");
                         abortScrollerAnimation(true);
                     }
 
@@ -1430,12 +1431,14 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                     int maxScroll = mMaxScroll;
                     int minScroll = mMinScroll;
 
-                    if (((initialScroll >= maxScroll) && (isVelocityLeft || !isFling)) ||
-                        ((initialScroll <= minScroll) && (!isVelocityLeft || !isFling))) {
+                    if (((initialScroll >= maxScroll) && (isVelocityLeft || !isFling)) || ((initialScroll <= minScroll) && (!isVelocityLeft || !isFling))) {
+								    Log.d("elys-log", "mScroller.springBack");
                         mScroller.springBack(initialScroll, 0, minScroll, maxScroll, 0, 0);
                         mNextPage = getDestinationPage();
+								    Log.d("elys-log", "mNextPage");
                     } else {
                         int velocity1 = -velocity;
+								    Log.d("elys-log", "Continue");
                         // Continue a scroll or fling in progress
                         mScroller.fling(initialScroll, 0, velocity1, 0, minScroll, maxScroll, 0, 0,
                                 Math.round(getWidth() * 0.5f * OVERSCROLL_DAMP_FACTOR), 0);
@@ -1443,6 +1446,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                         int finalPos = mScroller.getFinalX();
                         mNextPage = getDestinationPage(finalPos);
                         runOnPageScrollsInitialized(this::onNotSnappingToPageInFreeScroll);
+								    Log.d("elys-log", "runOnPageScrollsInitialized");
                     }
                     invalidate();
                 }
