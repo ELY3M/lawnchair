@@ -1369,8 +1369,6 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                 float delta = primaryDirection - mDownMotionPrimary;
 
                 View current = getPageAt(mCurrentPage);
-						    Log.d("elys-log", "current: "+current);
-							Log.d("elys-log", "mCurrentPage: "+mCurrentPage);
                 if (current == null) {
                     Log.e(TAG, "current page was null. this should not happen.");
                     return true;
@@ -1407,7 +1405,6 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                     // move to the left and fling to the right will register as a fling to the right.
 
                     if (((isSignificantMove && !isDeltaLeft && !isFling) || (isFling && !isVelocityLeft)) && mCurrentPage > 0) {
-								    Log.d("elys-log", "isSignificantMove");
                         finalPage = returnToOriginalPage
                                 ? mCurrentPage : mCurrentPage - getPanelCount();
                         runOnPageScrollsInitialized(
@@ -1420,7 +1417,19 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                         runOnPageScrollsInitialized(() -> snapToPageWithVelocity(finalPage, velocity));
                     } else {
 						Log.d("elys-log", "runOnPageScrollsInitialized1");
-                        runOnPageScrollsInitialized(this::snapToDestination);
+						Log.d("elys-log", "mCurrentPage: "+mCurrentPage);
+						Log.d("elys-log", "getPanelCount(): "+getPanelCount());
+						
+                        //test
+                        finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + getPanelCount();
+						Log.d("elys-log", "finalPage: "+finalPage);
+                        runOnPageScrollsInitialized(() -> snapToPageWithVelocity(finalPage, velocity));						
+						
+						
+						///runOnPageScrollsInitialized(this::snapToDestination);
+						
+						
+						
                     }
                 } else {
                     if (!mScroller.isFinished()) {
