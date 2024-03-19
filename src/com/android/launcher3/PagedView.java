@@ -1370,6 +1370,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
 
                 View current = getPageAt(mCurrentPage);
 						    Log.d("elys-log", "current: "+current);
+							Log.d("elys-log", "mCurrentPage: "+mCurrentPage);
                 if (current == null) {
                     Log.e(TAG, "current page was null. this should not happen.");
                     return true;
@@ -1390,13 +1391,13 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                 }
 
                 if (!mFreeScroll) {
-							    		    Log.d("elys-log", "ACTION_UP");
+							    		    Log.d("elys-log", "!mFreeScroll");
                     // In the case that the page is moved far to one direction and then is flung
                     // in the opposite direction, we use a threshold to determine whether we should
                     // just return to the starting page, or if we should skip one further.
                     boolean returnToOriginalPage = false;
-                    if (Math.abs(delta) > pageOrientedSize * RETURN_TO_ORIGINAL_PAGE_THRESHOLD &&
-                            Math.signum(velocity) != Math.signum(delta) && isFling) {
+                    if (Math.abs(delta) > pageOrientedSize * RETURN_TO_ORIGINAL_PAGE_THRESHOLD && Math.signum(velocity) != Math.signum(delta) && isFling) {
+						Log.d("elys-log", "returnToOriginalPage = true");
                         returnToOriginalPage = true;
                     }
 
@@ -1411,14 +1412,14 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                                 ? mCurrentPage : mCurrentPage - getPanelCount();
                         runOnPageScrollsInitialized(
                                 () -> snapToPageWithVelocity(finalPage, velocity));
-                    } else if (((isSignificantMove && isDeltaLeft && !isFling) ||
-                            (isFling && isVelocityLeft)) &&
-                            mCurrentPage < getChildCount() - 1) {
-                        finalPage = returnToOriginalPage
-                                ? mCurrentPage : mCurrentPage + getPanelCount();
-                        runOnPageScrollsInitialized(
-                                () -> snapToPageWithVelocity(finalPage, velocity));
+                    } else if (((isSignificantMove && isDeltaLeft && !isFling) || (isFling && isVelocityLeft)) && mCurrentPage < getChildCount() - 1) {
+						
+						Log.d("elys-log", "isSignificantMove else");
+						
+                        finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + getPanelCount();
+                        runOnPageScrollsInitialized(() -> snapToPageWithVelocity(finalPage, velocity));
                     } else {
+						Log.d("elys-log", "runOnPageScrollsInitialized1");
                         runOnPageScrollsInitialized(this::snapToDestination);
                     }
                 } else {
@@ -1446,7 +1447,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                         int finalPos = mScroller.getFinalX();
                         mNextPage = getDestinationPage(finalPos);
                         runOnPageScrollsInitialized(this::onNotSnappingToPageInFreeScroll);
-								    Log.d("elys-log", "runOnPageScrollsInitialized");
+								    Log.d("elys-log", "runOnPageScrollsInitialized2");
                     }
                     invalidate();
                 }
