@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import kotlin.math.abs
+import android.util.Log;
 
 open class DirectionalGestureListener(ctx: Context?) : OnTouchListener {
     private val mGestureDetector: GestureDetector
