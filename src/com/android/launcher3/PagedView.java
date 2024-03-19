@@ -1244,7 +1244,10 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         // Skip touch handling if there are no pages to swipe
-        if (getChildCount() <= 0) return false;
+        if (getChildCount() <= 0) { 
+		Log.d("elys-log", "no pages to swipe....");
+		return false; 
+		}
 
         acquireVelocityTrackerAndAddMovement(ev);
 
@@ -1252,6 +1255,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
 
         switch (action & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_DOWN:
+		Log.d("elys-log", "ACTION_DOWN");
             updateIsBeingDraggedOnTouchDown(ev);
 
             /*
@@ -1277,11 +1281,13 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
 
         case ACTION_MOVE_ALLOW_EASY_FLING:
             // Start scrolling immediately
+			Log.d("elys-log", "ACTION_MOVE_ALLOW_EASY_FLING");
             determineScrollingStart(ev);
             mAllowEasyFling = true;
             break;
 
         case MotionEvent.ACTION_MOVE:
+		Log.d("elys-log", "ACTION_MOVE");
             if (mIsBeingDragged) {
                 // Scroll to follow the motion event
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
@@ -1352,6 +1358,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
             break;
 
         case MotionEvent.ACTION_UP:
+		    Log.d("elys-log", "ACTION_UP");
             if (mIsBeingDragged) {
                 final int activePointerId = mActivePointerId;
                 final int pointerIndex = ev.findPointerIndex(activePointerId);
@@ -1367,9 +1374,6 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                 float delta = primaryDirection - mDownMotionPrimary;
 
                 View current = getPageAt(mCurrentPage);
-				
-				Log.d(TAG, "current page is "+current);
-				
                 if (current == null) {
                     Log.e(TAG, "current page was null. this should not happen.");
                     return true;
@@ -1410,21 +1414,9 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
                                 ? mCurrentPage : mCurrentPage - getPanelCount();
                         runOnPageScrollsInitialized(
                                 () -> snapToPageWithVelocity(finalPage, velocity));
-								
-/*
-
-                    } else if (mCurrentPage == getChildCount() - 1 && infiniteScroll) {
-                        finalPage = returnToOriginalPage ? mCurrentPage : 0;
-                        snapToPageWithVelocity(finalPage, velocityX);
-                    } else if (mCurrentPage == 0 && infiniteScroll) {
-                        finalPage = returnToOriginalPage ? mCurrentPage : getChildCount() - 1;
-                        snapToPageWithVelocity(finalPage, velocityX);
-*/								
-								
-								
-									
-								
-                    } else if (((isSignificantMove && isDeltaLeft && !isFling) || (isFling && isVelocityLeft)) && mCurrentPage < getChildCount() - 1) {
+                    } else if (((isSignificantMove && isDeltaLeft && !isFling) ||
+                            (isFling && isVelocityLeft)) &&
+                            mCurrentPage < getChildCount() - 1) {
                         finalPage = returnToOriginalPage
                                 ? mCurrentPage : mCurrentPage + getPanelCount();
                         runOnPageScrollsInitialized(
@@ -1466,6 +1458,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
             break;
 
         case MotionEvent.ACTION_CANCEL:
+		Log.d("elys-log", "ACTION_CANCEL");
             if (mIsBeingDragged) {
                 runOnPageScrollsInitialized(this::snapToDestination);
             }
@@ -1475,6 +1468,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
             break;
 
         case MotionEvent.ACTION_POINTER_UP:
+		Log.d("elys-log", "ACTION_POINTER_UP");
             onSecondaryPointerUp(ev);
             releaseVelocityTracker();
             break;
@@ -1515,6 +1509,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
         if ((event.getSource() & InputDevice.SOURCE_CLASS_POINTER) != 0) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_SCROLL: {
+					Log.d("elys-log", "ACTION_SCROLL");
                     // Handle mouse (or ext. device) by shifting the page depending on the scroll
                     final float vscroll;
                     final float hscroll;

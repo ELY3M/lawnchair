@@ -28,6 +28,7 @@ open class DirectionalGestureListener(ctx: Context?) : OnTouchListener {
             abs(diff) > SWIPE_THRESHOLD && abs(velocity) > SWIPE_VELOCITY_THRESHOLD
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+		Log.d("elys-log", "onFling in gestures");
             return try {
                 val diffY = e2.y - (e1?.y ?: 0f)
                 val diffX = e2.x - (e1?.x ?: 0f)
