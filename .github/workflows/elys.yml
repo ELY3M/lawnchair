@@ -2,29 +2,9 @@ name: Build APK and publish
 
 on:
   push:
-    branches:
-      - '*'
-    paths-ignore:
-      - '.idea/**'
-      - '.gitattributes'
-      - '.github/**.json'
-      - '.gitignore'
-      - '.gitmodules'
-      - '**.md'
-      - 'LICENSE'
-      - 'NOTICE'
+    branches: [ "*" ]
   pull_request:
-    branches:
-      - '*'  
-    paths-ignore:
-      - '.idea/**'
-      - '.gitattributes'
-      - '.github/**.json'
-      - '.gitignore'
-      - '.gitmodules'
-      - '**.md'
-      - 'LICENSE'
-      - 'NOTICE'
+    branches: [ "*" ]
   workflow_dispatch:
   workflow_call:
 
@@ -38,11 +18,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: true
-      - uses: actions/setup-java@v6
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v7
+          
+      - uses: gradle/actions/setup-gradle@v6
           
       - name: Build APK
         run: ./gradlew assembleLawnWithQuickstepGithubRelease
